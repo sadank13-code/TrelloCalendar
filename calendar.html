@@ -14,6 +14,15 @@
   <script>
     const t = window.TrelloPowerUp.iframe();
     
+    // NEW: Helper function to convert Trello's UTC dates to your exact local date
+    function getLocalDateString(isoString) {
+      const d = new Date(isoString);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    
     t.render(function() {
       t.cards('id', 'name', 'start', 'due', 'url').then(function(cards) {
         
@@ -27,11 +36,11 @@
               .map(c => {
                 const data = c.savedData;
                 
-                // Get the YYYY-MM-DD from Trello's native dates
-                const startDateStr = c.start.substring(0, 10);
-                const dueDateStr = c.due.substring(0, 10);
+                // Use the new helper function to get the local YYYY-MM-DD
+                const startDateStr = getLocalDateString(c.start);
+                const dueDateStr = getLocalDateString(c.due);
                 
-                // Merge Trello's Date with our Custom Time (or fallback to Trello's default time)
+                // Merge Local Date with our Custom Time
                 const finalStart = data.customStartTime ? `${startDateStr}T${data.customStartTime}:00` : c.start;
                 const finalEnd = data.customEndTime ? `${dueDateStr}T${data.customEndTime}:00` : c.due;
 
@@ -59,9 +68,7 @@
               
               events: events,
               eventClick: function(info) {
-                // Prevents FullCalendar from trying to open the URL directly
                 info.jsEvent.preventDefault();
-                // Opens the Trello card modal
                 t.showCard(info.event.id);
               }
             });
