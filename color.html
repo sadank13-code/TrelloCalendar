@@ -3,40 +3,46 @@
 <head>
   <script src="https://p.trellocdn.com/power-up.min.js"></script>
   <style>
-    body { font-family: -apple-system, sans-serif; padding: 10px; text-align: center; margin: 0;}
-    label { display: block; margin-bottom: 10px; font-weight: bold; color: #172b4d; }
-    /* Styles the native color wheel */
-    input[type="color"] { width: 100%; height: 50px; border: none; cursor: pointer; margin-bottom: 15px; padding: 0; }
-    /* Styles the save button */
-    button { width: 100%; padding: 10px; background: #0079bf; color: white; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; }
-    button:hover { background: #026aa7; }
+    body { font-family: -apple-system, sans-serif; padding: 15px; margin: 0;}
+    label { display: block; margin-top: 10px; margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #172b4d;}
+    input { width: 100%; box-sizing: border-box; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 3px; font-family: inherit;}
+    input[type="color"] { height: 40px; padding: 0; cursor: pointer; border: none; }
+    button { width: 100%; padding: 10px; background: #0079bf; color: white; border: none; border-radius: 3px; cursor: pointer; font-weight: bold; margin-top: 5px;}
   </style>
 </head>
 <body>
   
-  <label for="colorPicker">Select Event Color</label>
+  <label>Start Time</label>
+  <input type="time" id="startTime">
+
+  <label>End Time</label>
+  <input type="time" id="endTime">
+
+  <label>Event Color</label>
   <input type="color" id="colorPicker" value="#0079bf">
-  <button onclick="saveColor()">Save to Calendar</button>
+  
+  <button onclick="saveSettings()">Save to Calendar</button>
   
   <script>
     const t = window.TrelloPowerUp.iframe();
     
-    // Check if the card already has a color saved, and load it into the picker
-    t.get('card', 'shared', 'customColor').then(function(savedColor) {
-      if (savedColor) {
-        document.getElementById('colorPicker').value = savedColor;
+    // Load previously saved times and colors
+    t.get('card', 'shared').then(function(data) {
+      if (data) {
+        if (data.customStartTime) document.getElementById('startTime').value = data.customStartTime;
+        if (data.customEndTime) document.getElementById('endTime').value = data.customEndTime;
+        if (data.customColor) document.getElementById('colorPicker').value = data.customColor;
       }
     });
 
-    function saveColor() {
-      // Get whatever hex color the user picked from the wheel
-      const hexValue = document.getElementById('colorPicker').value;
-      
-      // Save it to Trello, then close
-      t.set('card', 'shared', 'customColor', hexValue)
-       .then(function() {
-         t.closePopup();
-       });
+    function saveSettings() {
+      t.set('card', 'shared', {
+        customStartTime: document.getElementById('startTime').value,
+        customEndTime: document.getElementById('endTime').value,
+        customColor: document.getElementById('colorPicker').value
+      }).then(function() {
+        t.closePopup();
+      });
     }
   </script>
 </body>

@@ -1,55 +1,55 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <script src="https://p.trellocdn.com/power-up.min.js"></script>
-  <!-- Load FullCalendar open-source library -->
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
-  <style>
-    body { margin: 0; padding: 15px; font-family: -apple-system, sans-serif; background: #fff;}
-    #calendar { height: 90vh; }
-  </style>
-</head>
-<body>
-  <div id="calendar"></div>
-  <script>
+<script>
     const t = window.TrelloPowerUp.iframe();
     
     t.render(function() {
-      // 1. Get all cards with their native Trello start/due times
       t.cards('id', 'name', 'start', 'due', 'url').then(function(cards) {
         
-        // 2. Fetch the custom color data we stored on each card
-        Promise.all(cards.map(c => t.get(c.id, 'shared', 'customColor')
-          .then(color => ({...c, customColor: color}))))
-          .then(cardsWithColor => {
+        // Fetch ALL shared data (color and times) we saved
+        Promise.all(cards.map(c => t.get(c.id, 'shared')
+          .then(data => ({...c, savedData: data || {}}))))
+          .then(cardsWithData => {
             
-            // 3. Format the data for FullCalendar
-            const events = cardsWithColor
-              .filter(c => c.start && c.due) // Require both times to be a time block
-              .map(c => ({
-                id: c.id,
-                title: c.name,
-                start: c.start,
-                end: c.due,
-                url: c.url,
-                // Apply the custom color, or default to Trello Blue
-                backgroundColor: c.customColor || '#0079bf',
-                borderColor: c.customColor || '#0079bf'
-              }));
+            const events = cardsWithData
+              .filter(c => c.start && c.due)
+              .map(c => {
+                const data = c.savedData;
+                
+                // Get the YYYY-MM-DD from Trello's native dates
+                const startDateStr = c.start.substring(0, 10);
+                const dueDateStr = c.due.substring(0, 10);
+                
+                // Merge Trello's Date with our Custom Time (or fallback to Trello's default time)
+                const finalStart = data.customStartTime ? `${startDateStr}T${data.customStartTime}:00` : c.start;
+                const finalEnd = data.customEndTime ? `${dueDateStr}T${data.customEndTime}:00` : c.due;
+
+                return {
+                  id: c.id,
+                  title: c.name,
+                  start: finalStart,
+                  end: finalEnd,
+                  backgroundColor: data.customColor || '#0079bf',
+                  borderColor: data.customColor || '#0079bf'
+                };
+              });
             
-            // 4. Render the Time Grid
             const calendarEl = document.getElementById('calendar');
             const calendar = new FullCalendar.Calendar(calendarEl, {
               initialView: 'timeGridWeek',
-              slotDuration: '00:30:00', // Forces the 30-minute scale
-              expandRows: true,         // Fills the screen vertically
-              eventOverlap: true,       // Renders overlapping cards side-by-side automatically
+              slotDuration: '00:30:00',
+              expandRows: true,
+              eventOverlap: true,
+              
+              // Capitalizes the "Today" button
+              buttonText: { today: 'Today' },
+              
               events: events,
+              eventClick: function(info) {
+                info.jsEvent.preventDefault();
+                t.showCard(info.event.id);
+              }
             });
             calendar.render();
         });
       });
     });
   </script>
-</body>
-</html>
