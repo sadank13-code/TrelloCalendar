@@ -7,7 +7,7 @@
   <script>
     window.TrelloPowerUp.initialize({
       
-      // 1. CHANGED: Now uses 'board-buttons' instead of 'board-views'
+      // 1. Creates the Calendar button at the top of your board
       'board-buttons': function(t, options) {
         return [{
           icon: 'https://cdn-icons-png.flaticon.com/512/2370/2370264.png',
@@ -24,16 +24,16 @@
         }];
       },
 
-      // 2. This stays exactly the same as before
+      // 2. Creates the custom settings button on the back of every card
       'card-buttons': function(t, options) {
         return [{
           icon: 'https://cdn-icons-png.flaticon.com/512/61/61053.png',
-          text: 'Set Calendar Color',
+          text: 'Calendar Settings', // Updated text
           callback: function(t) {
             return t.popup({
-              title: 'Choose Event Color',
+              title: 'Calendar Settings',
               url: './color.html',
-              height: 150
+              height: 300 // Increased height to fit the new time pickers
             });
           }
         }];
