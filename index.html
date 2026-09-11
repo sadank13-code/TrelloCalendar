@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://p.trellocdn.com/power-up.min.js"></script>
+</head>
+<body>
+  <script>
+    window.TrelloPowerUp.initialize({
+      // 1. Creates the Calendar view button at the top of your board
+      'board-views': function(t, options) {
+        return [{
+          icon: 'https://cdn-icons-png.flaticon.com/512/2370/2370264.png',
+          text: 'Time Grid Calendar',
+          condition: 'always',
+          url: './calendar.html' // Loads the FullCalendar view
+        }];
+      },
+      // 2. Creates a button on cards to set your custom calendar color
+      'card-buttons': function(t, options) {
+        return [{
+          icon: 'https://cdn-icons-png.flaticon.com/512/61/61053.png',
+          text: 'Set Calendar Color',
+          callback: function(t) {
+            return t.popup({
+              title: 'Choose Event Color',
+              url: './color.html',
+              height: 150
+            });
+          }
+        }];
+      }
+    });
+  </script>
+</body>
+</html>

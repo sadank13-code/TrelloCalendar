@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://p.trellocdn.com/power-up.min.js"></script>
+  <style>
+    button { width: 100%; padding: 10px; margin: 4px 0; cursor: pointer; border: none; color: white; border-radius: 3px; font-weight: bold;}
+    .blue { background: #0079bf; } .green { background: #61bd4f; } .red { background: #eb5a46; }
+  </style>
+</head>
+<body>
+  <button class="blue" onclick="setColor('#0079bf')">Standard Blue</button>
+  <button class="green" onclick="setColor('#61bd4f')">Time Block Green</button>
+  <button class="red" onclick="setColor('#eb5a46')">Urgent Red</button>
+  
+  <script>
+    const t = window.TrelloPowerUp.iframe();
+    
+    function setColor(hexValue) {
+      // Save the custom hex code to the card, then close the popup
+      t.set('card', 'shared', 'customColor', hexValue)
+       .then(function() {
+         t.closePopup();
+       });
+    }
+  </script>
+</body>
+</html>
