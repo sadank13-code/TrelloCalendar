@@ -6,16 +6,25 @@
 <body>
   <script>
     window.TrelloPowerUp.initialize({
-      // 1. Creates the Calendar view button at the top of your board
-      'board-views': function(t, options) {
+      
+      // 1. CHANGED: Now uses 'board-buttons' instead of 'board-views'
+      'board-buttons': function(t, options) {
         return [{
           icon: 'https://cdn-icons-png.flaticon.com/512/2370/2370264.png',
           text: 'Time Grid Calendar',
           condition: 'always',
-          url: './calendar.html' // Loads the FullCalendar view
+          callback: function(t) {
+            // Opens your calendar.html file in a full-screen modal
+            return t.modal({
+              title: 'Time Grid Calendar',
+              url: './calendar.html',
+              fullscreen: true
+            });
+          }
         }];
       },
-      // 2. Creates a button on cards to set your custom calendar color
+
+      // 2. This stays exactly the same as before
       'card-buttons': function(t, options) {
         return [{
           icon: 'https://cdn-icons-png.flaticon.com/512/61/61053.png',
