@@ -2,7 +2,6 @@
 <html>
 <head>
   <script src="https://p.trellocdn.com/power-up.min.js"></script>
-  <!-- Load FullCalendar open-source library -->
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
   <style>
     body { margin: 0; padding: 15px; font-family: -apple-system, sans-serif; background: #fff;}
@@ -14,41 +13,25 @@
   <script>
     const t = window.TrelloPowerUp.iframe();
     
-    // NEW: Helper function to convert Trello's UTC dates to your exact local date
-    function getLocalDateString(isoString) {
-      const d = new Date(isoString);
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-    
     t.render(function() {
-      t.cards('id', 'name', 'start', 'due', 'url').then(function(cards) {
+      // We are no longer requesting Trello's native start/due dates
+      t.cards('id', 'name', 'url').then(function(cards) {
         
-        // Fetch ALL shared data (color and times) we saved
         Promise.all(cards.map(c => t.get(c.id, 'shared')
           .then(data => ({...c, savedData: data || {}}))))
           .then(cardsWithData => {
             
             const events = cardsWithData
-              .filter(c => c.start && c.due)
+              // Only process cards that have our custom popup dates set
+              .filter(c => c.savedData.customStart && c.savedData.customEnd)
               .map(c => {
                 const data = c.savedData;
                 
-                // Use the new helper function to get the local YYYY-MM-DD
-                const startDateStr = getLocalDateString(c.start);
-                const dueDateStr = getLocalDateString(c.due);
-                
-                // Merge Local Date with our Custom Time
-                const finalStart = data.customStartTime ? `${startDateStr}T${data.customStartTime}:00` : c.start;
-                const finalEnd = data.customEndTime ? `${dueDateStr}T${data.customEndTime}:00` : c.due;
-
                 return {
                   id: c.id,
                   title: c.name,
-                  start: finalStart,
-                  end: finalEnd,
+                  start: data.customStart,
+                  end: data.customEnd,
                   backgroundColor: data.customColor || '#0079bf',
                   borderColor: data.customColor || '#0079bf'
                 };
@@ -59,13 +42,8 @@
               initialView: 'timeGridWeek',
               slotDuration: '00:30:00',
               expandRows: true,
-              
-              // Forces overlapping events to sit strictly side-by-side
               slotEventOverlap: false, 
-              
-              // Capitalizes the "Today" button
               buttonText: { today: 'Today' },
-              
               events: events,
               eventClick: function(info) {
                 info.jsEvent.preventDefault();

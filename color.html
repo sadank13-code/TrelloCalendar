@@ -12,11 +12,11 @@
 </head>
 <body>
   
-  <label>Start Time</label>
-  <input type="time" id="startTime">
+  <label>Start Date & Time</label>
+  <input type="datetime-local" id="startDateTime">
 
-  <label>End Time</label>
-  <input type="time" id="endTime">
+  <label>End Date & Time</label>
+  <input type="datetime-local" id="endDateTime">
 
   <label>Event Color</label>
   <input type="color" id="colorPicker" value="#0079bf">
@@ -26,19 +26,19 @@
   <script>
     const t = window.TrelloPowerUp.iframe();
     
-    // Load previously saved times and colors
+    // Load previously saved independent dates
     t.get('card', 'shared').then(function(data) {
       if (data) {
-        if (data.customStartTime) document.getElementById('startTime').value = data.customStartTime;
-        if (data.customEndTime) document.getElementById('endTime').value = data.customEndTime;
+        if (data.customStart) document.getElementById('startDateTime').value = data.customStart;
+        if (data.customEnd) document.getElementById('endDateTime').value = data.customEnd;
         if (data.customColor) document.getElementById('colorPicker').value = data.customColor;
       }
     });
 
     function saveSettings() {
       t.set('card', 'shared', {
-        customStartTime: document.getElementById('startTime').value,
-        customEndTime: document.getElementById('endTime').value,
+        customStart: document.getElementById('startDateTime').value,
+        customEnd: document.getElementById('endDateTime').value,
         customColor: document.getElementById('colorPicker').value
       }).then(function() {
         t.closePopup();
